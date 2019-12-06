@@ -585,7 +585,7 @@ If TITLE is given, use it as header title."
          (insert "<ejira new heading>")
          (org-set-property "ID" id)
          (org-beginning-of-line)
-         (org-id-update-id-locations nil t)
+         (org-id-add-location id (buffer-file-name))
          (point-marker))))))
 
 (defun ejira--find-heading (id)

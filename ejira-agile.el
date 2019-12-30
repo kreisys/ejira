@@ -40,6 +40,10 @@
   :group 'ejira
   :type '(repeat number))
 
+(defvar ejira--current-sprint-query
+  (format "project = %s and sprint in openSprints()" ejira-scrum-project)
+  "Query used to detect the current sprint. Note that only the first result is used.")
+
 (defvar *current-sprint* nil)
 (defun ejira-update-current-sprint ()
   "Update the cached current sprint."
@@ -52,9 +56,7 @@
                 (mapcar #'ejira--parse-sprint
                         (ejira--alist-get
                          (nth 0 (jiralib2-do-jql-search
-                                 (concat "project in ("
-                                         ejira-scrum-project
-                                         ") and sprint in openSprints()")))
+                                 ejira--current-sprint-query))
                          'fields ejira-sprint-field))))))
 
 (defun ejira-current-sprint ()

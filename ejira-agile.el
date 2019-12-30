@@ -29,8 +29,11 @@
 
 (require 'ejira-core)
 
-(defvar ejira-scrum-project nil
-  "Project name used for getting the active sprint information.")
+(defcustom ejira-scrum-project nil
+  "Project name used for getting the active sprint information."
+  :group 'ejira
+  :type  '(choice (const :tag "None" nil)
+                  (string :tag "Project Name")))
 
 (defcustom ejira-boards nil
   "Board ids to sync with."

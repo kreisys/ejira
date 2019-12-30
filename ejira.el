@@ -344,14 +344,26 @@ Return the first item matching JQL."
                 `(nil ,(buffer-file-name (marker-buffer target)) nil
                       ,(marker-position target)))))
 
+(defvar ejira--sample-epic-query
+  (if ejira-scrum-project
+      (format "type = %s and project = %s" ejira-epic-type-name ejira-scrum-project)
+    (format "type = %s" ejira-epic-type-name))
+  "Query for retrieving a sample epic used for guessing epic custom fields")
+
+(defvar ejira--sample-issue-query
+  (if ejira-scrum-project
+      (format "type != %s and project = %s" ejira-epic-type-name ejira-scrum-project)
+    (format "type != %s" ejira-epic-type-name))
+  "Query for retrieving a sample issue used for guessing sprint custom field")
+
 (defun ejira-guess-epic-sprint-fields ()
   "Try to guess the custom field names for epic and sprint."
   (interactive)
   (message "Attempting to auto-configure Ejira custom fields...")
   (let* ((epic-key (alist-get 'key (ejira--get-first-id-matching-jql
-                                    (format "type = %s" ejira-epic-type-name))))
+                                    ejira--sample-epic-query)))
          (issue-key (alist-get 'key (ejira--get-first-id-matching-jql
-                                     (format "type != %s" ejira-epic-type-name))))
+                                     ejira--sample-issue-query)))
          (epic-meta (jiralib2-session-call
                      (format "/rest/api/2/issue/%s/editmeta" epic-key)))
          (issue-meta (jiralib2-session-call

@@ -44,15 +44,18 @@
   (format "project = %s and sprint in openSprints()" ejira-scrum-project)
   "Query used to detect the current sprint. Note that only the first result is used.")
 
-(defvar *current-sprint* nil)
+(defvar ejira-current-sprint nil
+  "cached value of current sprint object.
+use function of same name to retrieve")
+
 (defun ejira-update-current-sprint ()
   "Update the cached current sprint."
   (interactive)
-  (setq *current-sprint*
+  (setq ejira-current-sprint
         (catch 'active-sprint
           (mapc (lambda (s)
                   (when (equal (ejira-sprint-state s) "ACTIVE")
-                    (throw 'active-sprint (ejira-sprint-name s))))
+                    (throw 'active-sprint s)))
                 (mapcar #'ejira--parse-sprint
                         (ejira--alist-get
                          (nth 0 (jiralib2-do-jql-search
@@ -61,18 +64,21 @@
 
 (defun ejira-current-sprint ()
   "Get the active sprint in current project."
-  (or *current-sprint*
+  (or ejira-current-sprint
       (ejira-update-current-sprint)))
 
+(defun ejira-current-sprint-name ()
+  "Return the current sprint name."
+  (ejira-sprint-name (ejira-current-sprint)))
 
 (defun ejira-current-sprint-tag ()
   "Convert current sprint name to a valid tag identifier."
-  (ejira--to-tagname (or (ejira-current-sprint)
+  (ejira--to-tagname (or (ejira-current-sprint-name)
                          (error "No active sprint"))))
 
-(defun ejira-current-sprint-num ()
-  "Extract just the sprint number of active sprint."
-  (replace-regexp-in-string ".*?\\([0-9]+\\)" "\\1" (ejira-current-sprint)))
+(defun ejira-current-sprint-id ()
+  "Return the current sprint ID. Useful for Agenda queries."
+  (ejira-sprint-id (ejira-current-sprint)))
 
 (provide 'ejira-agile)
 ;;; ejira-agile.el ends here

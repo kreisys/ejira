@@ -111,24 +111,11 @@ a list of JIRA keys and `org-id' to perform the search."
     (org-agenda-finalize)
     (setq buffer-read-only t)))
 
-(defvar ejira-agenda--jql-cache nil
-  "Cache for JQL searches made by ejira agenda.
-Association list ((<jql> . (<key1> <key2> <key3> ...)) ...)")
-
 ;;;###autoload
 (defun ejira-jql (jql)
   "`org-agenda' -type which filters the issues with JQL.
 Prefix argument causes discarding the cached issue key list."
-  (when (equal current-prefix-arg '(16))
-    (mapc #'ejira--update-task
-          (mapcar #'ejira--parse-item
-                  (apply #'jiralib2-jql-search jql (ejira--get-fields-to-sync)))))
-  (when (or current-prefix-arg (not (assoc jql ejira-agenda--jql-cache)))
-    (map-put ejira-agenda--jql-cache jql (mapcar
-                                          (-partial #'alist-get 'key)
-                                          (jiralib2-jql-search jql "key"))))
-
-  (ejira-agenda-view (cdr (assoc jql ejira-agenda--jql-cache))))
+  (ejira-agenda-view (ejira--jql jql)))
 
 (defun ejira-agenda--cmd (fun &rest args)
   "Call function FUN from agenda.

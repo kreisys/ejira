@@ -913,6 +913,23 @@ Without type, match for all ejira types (task, epic, story, subtask)"
   (concat ejira-sprint-tagname-prefix
           (replace-regexp-in-string "[^a-zA-Z0-9_]+" "_" str)))
 
+(defvar ejira--jql-cache nil
+  "Cache for JQL searches made by ejira.
+Association list ((<jql> . (<key1> <key2> <key3> ...)) ...)")
+
+(defun ejira--jql (jql)
+  "`org-agenda' -type which filters the issues with JQL.
+Prefix argument causes discarding the cached issue key list."
+  (when (equal current-prefix-arg '(16))
+    (mapc #'ejira--update-task
+          (mapcar #'ejira--parse-item
+                  (apply #'jiralib2-jql-search jql (ejira--get-fields-to-sync)))))
+  (when (or current-prefix-arg (not (assoc jql ejira--jql-cache)))
+    (map-put ejira--jql-cache jql (mapcar
+                                          (-partial #'alist-get 'key)
+                                          (jiralib2-jql-search jql "key"))))
+
+  (cdr (assoc jql ejira--jql-cache)))
 
 (provide 'ejira-core)
 ;;; ejira-core.el ends here

@@ -56,24 +56,27 @@ Match issue summaries as well"
   (interactive)
   (counsel-ejira--init)
   (let ((ivy-sort-functions-alist '((counsel-ejira-jql . counsel-ejira--sort-by-priority))))
-    (ivy-read "Pick: " (ejira--jql jql)
+    (ivy-read " " (ejira--jql jql)
               :sort t
               :matcher #'counsel-ejira--issue-matcher
               :caller 'counsel-ejira-jql)))
 
-(defun counsel-ejira--key-transformer (key) (format " [%s]" key))
-(defun counsel-ejira--summary-transformer (key) (ejira--get-property key "ITEM"))
-(defun counsel-ejira--status-transformer (key) (ejira--get-property key "STATUS"))
+(defun counsel-ejira--key-transformer      (key) (format " [%s]" key))
+(defun counsel-ejira--summary-transformer  (key) (ejira--get-property key "ITEM"))
+(defun counsel-ejira--status-transformer   (key) (ejira--get-property key "STATUS"))
 (defun counsel-ejira--priority-transformer (key) (-> (ejira--get-property key "PRIORITY")
                                                      string-to-char
                                                      org-fancy-priority-get-value-with-face))
+
 (defun counsel-ejira--type-transformer (key)
   (let ((type (ejira--get-property key "Issuetype")))
     (cond
-     ((equal type "Bug")   (all-the-icons-octicon "bug"))
-     ((equal type "Task")  (all-the-icons-octicon "checklist"))
-     ((equal type "Improvement")  (all-the-icons-octicon "thumbsup"))
-     ((equal type "Story")  (all-the-icons-octicon "book"))
+     ((equal type "Bug")         (propertize "" 'face 'all-the-icons-red))
+     ((equal type "Epic")        (propertize "" 'face 'all-the-icons-purple))
+     ((equal type "Task")        (propertize "" 'face 'all-the-icons-blue))
+     ((equal type "Sub-Task")    (propertize "" 'face 'all-the-icons-blue))
+     ((equal type "Improvement") (propertize "" 'face 'all-the-icons-green))
+     ((equal type "Story")       (propertize "" 'face 'all-the-icons-green))
      (t type))))
 
 (defun counsel-ejira--init ()
@@ -81,10 +84,10 @@ Match issue summaries as well"
         (plist-put ivy-rich-display-transformers-list
                    'counsel-ejira-jql
                    '(:columns
-                     ((counsel-ejira--key-transformer (:width 10)) ; the original transformer
-                      (counsel-ejira--priority-transformer (:width 3))
-                      (counsel-ejira--type-transformer (:width 3))
-                      (counsel-ejira--status-transformer (:width 15))
+                     ((counsel-ejira--key-transformer      (:width 10))
+                      (counsel-ejira--priority-transformer (:width 2))
+                      (counsel-ejira--type-transformer     (:width 2))
+                      (counsel-ejira--status-transformer   (:width 15))
                       (counsel-ejira--summary-transformer)))))
 
   (ivy-rich-mode -1)

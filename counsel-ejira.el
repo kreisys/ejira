@@ -67,7 +67,14 @@ Match issue summaries as well"
 (defun counsel-ejira--priority-transformer (key) (-> (ejira--get-property key "PRIORITY")
                                                      string-to-char
                                                      org-fancy-priority-get-value-with-face))
-(defun counsel-ejira--type-transformer (key) (ejira--get-property key "Issuetype"))
+(defun counsel-ejira--type-transformer (key)
+  (let ((type (ejira--get-property key "Issuetype")))
+    (cond
+     ((equal type "Bug")   (all-the-icons-octicon "bug"))
+     ((equal type "Task")  (all-the-icons-octicon "checklist"))
+     ((equal type "Improvement")  (all-the-icons-octicon "thumbsup"))
+     ((equal type "Story")  (all-the-icons-octicon "book"))
+     (t type))))
 
 (defun counsel-ejira--init ()
   (setq ivy-rich-display-transformers-list
@@ -76,9 +83,9 @@ Match issue summaries as well"
                    '(:columns
                      ((counsel-ejira--key-transformer (:width 10)) ; the original transformer
                       (counsel-ejira--priority-transformer (:width 3))
-                      (counsel-ejira--type-transformer (:width 15 :face font-lock-doc-face))
-                      (counsel-ejira--status-transformer (:width 15 :face font-lock-doc-face))
-                      (counsel-ejira--summary-transformer (:face font-lock-doc-face))))))
+                      (counsel-ejira--type-transformer (:width 3))
+                      (counsel-ejira--status-transformer (:width 15))
+                      (counsel-ejira--summary-transformer)))))
 
   (ivy-rich-mode -1)
   (ivy-rich-mode +1))

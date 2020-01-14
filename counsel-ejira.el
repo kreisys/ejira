@@ -71,7 +71,7 @@ Match issue summaries as well"
 (defun counsel-ejira--type-transformer (key)
   (let ((type (ejira--get-property key "Issuetype")))
     (cond
-     ((equal type "Bug")         (propertize "" 'face 'all-the-icons-red))
+     ((equal type "Bug")         (propertize "" 'face 'all-the-icons-red))
      ((equal type "Epic")        (propertize "" 'face 'all-the-icons-purple))
      ((equal type "Task")        (propertize "" 'face 'all-the-icons-blue))
      ((equal type "Sub-Task")    (propertize "" 'face 'all-the-icons-blue))

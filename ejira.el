@@ -124,11 +124,11 @@ With prefix argument FOCUS, focus the issue after creating."
                         (beginning-of-line)
                       (outline-back-to-heading))
                     (point-marker)))
-         (story (ejira--select-story))
-         (project-id (ejira--get-project story))
+         (subtask-parent (ejira--select-subtask-parent))
+         (project-id (ejira--get-project subtask-parent))
          (key (when project-id(ejira--heading-to-item heading project-id
                                                       ejira-subtask-type-name
-                                                      `(parent . ((key . ,story)))))))
+                                                      `(parent . ((key . ,subtask-parent)))))))
     (when (and key focus)
       (ejira-focus-on-issue key))))
 

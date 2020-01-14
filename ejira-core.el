@@ -829,6 +829,14 @@ With SHALLOW update only todo state."
    (mapcar (-partial #'nth 0)
            (ejira--get-headings-in-agenda-files :type "ejira-project"))))
 
+(defun ejira--select-subtask-parent ()
+  "Select a story or task interactively."
+  (require 'counsel-ejira)
+  ;; TODO make this not counsel-specific?
+  (counsel-ejira-jql (format
+                      "component = devops and sprint = %s and resolution = unresolved"
+                      (ejira-current-sprint-id))))
+
 (defun ejira--select-story ()
   "Select a story interactively."
   (completing-read
